@@ -1,11 +1,9 @@
-import ListGroup from "./components/ListGroup";
+import Sidebar from "./components/Sidebar";
 
 function App() {
-  const items = ["New York", "San Francisco", "Tokyo", "London"];
-
   return (
     <div>
-      <ListGroup items={items} heading="Cities" />
+      <Sidebar />
     </div>
   );
 }
