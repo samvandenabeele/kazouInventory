@@ -1,6 +1,9 @@
-function Sidebar() {
+function Navbar() {
   return (
-    <nav className="navbar navbar-expand-lg bg-body-tertiary">
+    <nav
+      className="navbar navbar-expand-lg bg-body-tertiary border-bottom"
+      data-bs-theme="light"
+    >
       <div className="container-fluid">
         <a className="navbar-brand" href="#">
           Navbar
@@ -19,13 +22,12 @@ function Sidebar() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="#">
-                Home
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="#">
-                Link
+              <a
+                className="nav-link active"
+                aria-current="page"
+                href="#Accounts"
+              >
+                Accounts
               </a>
             </li>
             <li className="nav-item dropdown">
@@ -36,33 +38,20 @@ function Sidebar() {
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                Dropdown
+                Items
               </a>
               <ul className="dropdown-menu">
                 <li>
-                  <a className="dropdown-item" href="#">
-                    Action
+                  <a className="dropdown-item" href="#Individueel">
+                    Individueel
                   </a>
                 </li>
                 <li>
-                  <a className="dropdown-item" href="#">
-                    Another action
-                  </a>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <a className="dropdown-item" href="#">
-                    Something else here
+                  <a className="dropdown-item" href="#Dozen">
+                    Dozen
                   </a>
                 </li>
               </ul>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link disabled" aria-disabled="true">
-                Disabled
-              </a>
             </li>
           </ul>
           <form className="d-flex" role="search">
@@ -71,8 +60,9 @@ function Sidebar() {
               type="search"
               placeholder="Search"
               aria-label="Search"
+              data-bs-theme="light"
             />
-            <button className="btn btn-outline-success" type="submit">
+            <button className="btn" type="submit">
               Search
             </button>
           </form>
@@ -82,4 +72,4 @@ function Sidebar() {
   );
 }
 
-export default Sidebar;
+export default Navbar;
