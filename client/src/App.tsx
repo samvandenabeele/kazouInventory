@@ -1,27 +1,12 @@
-import Navbar from "./components/Navbar.tsx";
-import DataTable from "./components/DataTable.tsx";
-import ItemForm from "./components/ItemForm.tsx";
-import "./App.css";
+import ItemManager from "./components/ItemManager";
+import axios from "axios";
 
 function App() {
-  const dataTable: Array<[string, string, string]> = [
-    ["stift", "zwarte style", "A0001A"],
-    ["plakband", "plakband 10m", "A0002A"],
-    ["DuctTape", "ductape 50m x 5cm", "A0003A"],
-  ];
+  let api = axios.create({
+    baseURL: "https://localhost:5000/api/",
+  });
 
-  return (
-    <>
-      <Navbar />
-      <div className="container-fluid d-flex flex-column align-items-center">
-        <DataTable
-          tableItems={dataTable}
-          header="Inventaris individueel materiaal"
-        />
-        <ItemForm />
-      </div>
-    </>
-  );
+  return <ItemManager />;
 }
 
 export default App;
