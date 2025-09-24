@@ -1,5 +1,7 @@
 import Navbar from "./components/Navbar.tsx";
 import DataTable from "./components/DataTable.tsx";
+import ItemForm from "./components/ItemForm.tsx";
+import "./App.css";
 
 function App() {
   const dataTable: Array<[string, string, string]> = [
@@ -16,6 +18,7 @@ function App() {
           tableItems={dataTable}
           header="Inventaris individueel materiaal"
         />
+        <ItemForm />
       </div>
     </>
   );

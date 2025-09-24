@@ -1,3 +1,35 @@
-nav {
-    background-color: #6DB649;
+/* variables.css */
+:root {
+  /* Kleuren */
+  --color-primary: #4CAF50;
+  --color-secondary: #4DA6FF;
+  --color-accent: #FFD54F;
+  --color-bg: #F9F9F9;
+  --color-text-dark: #333333;
+
+  /* Typografie */
+  --font-header: 'Poppins', 'Montserrat', sans-serif;
+  --font-body: 'Open Sans', 'Roboto', sans-serif;
+
+  /* Afmetingen */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+
+  /* Tabellen */
+  --table-row-alt: #F2F2F2;
+  --table-row-hover: #E8F5FF;
+}
+
+/* Basisstijl */
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text-dark);
 }

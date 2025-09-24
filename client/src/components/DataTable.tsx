@@ -7,25 +7,18 @@ function DataTable(tableContent: PropsDataTable) {
   return (
     <>
       <h1>{tableContent.header}</h1>
-      <div className="container-fluid">
-        <form
-          className="d-inline-flex mb-3"
-          style={{ maxWidth: 300 }}
-          role="search"
-        >
+      <div>
+        <form style={{ maxWidth: 300 }} role="search">
           <input
-            className="form-control me-2"
             type="search"
             placeholder="Search"
             aria-label="Search"
             data-bs-theme="light"
             style={{ width: 160 }}
           />
-          <button className="btn btn-outline-primary" type="submit">
-            Search
-          </button>
+          <button type="submit">Search</button>
         </form>
-        <table className="table table-hover table-striped">
+        <table>
           <thead>
             <tr>
               <th scope="col">#</th>
