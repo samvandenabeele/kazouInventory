@@ -6,8 +6,7 @@ class Item(db.Model):
     
     iid = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.Text, nullable=False)
-    status = db.Column(db.Text, nullable=False, default='good')
-    barcode = db.Column(db.Text, unique=True)
+    quantity = db.Column(db.Integer, nullable=False)
 
 class Box(db.Model):
     __tablename__ = 'boxes'
@@ -25,3 +24,11 @@ class Content(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     date_added = db.Column(db.Date, default=date.today)
     date_deleted = db.Column(db.Date, nullable=True)
+    
+class ItemUse(db.Model):
+    __tablename__ = 'item_usage'
+    
+    ciid = db.Column(db.Text, primary_key=True)
+    iid = db.Column(db.Text, db.ForeignKey('items.iid'), nullable=False)
+    start_date = db.Column(db.DateTime, default=date.today())
+    end_date = db.Column(db.DateTime, nullable=True)

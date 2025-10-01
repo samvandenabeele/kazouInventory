@@ -1,12 +1,9 @@
-import ItemManager from "./components/ItemManager";
+import ItemAdd from "./components/ItemAdd.tsx";
 import axios from "axios";
 
 function App() {
-  let api = axios.create({
-    baseURL: "https://localhost:5000/api/",
-  });
-
-  return <ItemManager />;
+  axios.defaults.baseURL = "http://localhost:5000";
+  return <ItemAdd api={axios} />;
 }
 
 export default App;
