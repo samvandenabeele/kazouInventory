@@ -1,0 +1,22 @@
+{
+    "get_inventory": {
+        "inventory": [
+            {"description": "Tent", "quantity": 10, "loaned": 2},
+            {"description": "Sleeping Bag", "quantity": 20, "loaned": 5},
+            {"description": "Camping Stove", "quantity": 8, "loaned": 1},
+            {"description": "Lantern", "quantity": 15, "loaned": 3},
+            {"description": "First Aid Kit", "quantity": 12, "loaned": 0},
+            {"description": "Water Bottle", "quantity": 30, "loaned": 10},
+            {"description": "Backpack", "quantity": 18, "loaned": 4},
+            {"description": "Raincoat", "quantity": 25, "loaned": 7},
+            {"description": "Map", "quantity": 14, "loaned": 2},
+            {"description": "Compass", "quantity": 16, "loaned": 1},
+            {"description": "Flashlight", "quantity": 22, "loaned": 6},
+            {"description": "Cooking Pot", "quantity": 9, "loaned": 2},
+            {"description": "Rope", "quantity": 13, "loaned": 3},
+            {"description": "Gloves", "quantity": 17, "loaned": 5},
+            {"description": "Hat", "quantity": 21, "loaned": 8}
+        ],
+        "count": 15
+    }
+}
