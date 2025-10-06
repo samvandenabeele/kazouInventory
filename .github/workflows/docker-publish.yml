@@ -4,6 +4,7 @@ on:
   # Run only when a tag that looks like a version is pushed (e.g. v1.2.3 or v1)
   push:
     tags:
+      - "v*.*.*"
       - "v*.*"
       - "v*"
   # Keep manual dispatch for convenience
