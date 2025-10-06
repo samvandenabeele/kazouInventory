@@ -1,0 +1,27 @@
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: kazouinventory_server:local
+    container_name: kazouinventory_server
+    environment:
+      - FLASK_ENV=production
+    volumes:
+      - ./server/instance:/app/instance
+    ports:
+      - "5000:5000"
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: kazouinventory_client:local
+    container_name: kazouinventory_client
+    ports:
+      - "5173:80"
+    depends_on:
+      - server
+
+volumes:
+  db_data: {}

@@ -34,8 +34,8 @@ function ItemTable({ data }: propsItemTable) {
         <thead>
           <tr>
             <th>Description</th>
-            <th>Quantity</th>
-            <th>Loaned</th>
+            <th>Total Amount</th>
+            <th>Amount Loaned</th>
           </tr>
         </thead>
         <tbody>

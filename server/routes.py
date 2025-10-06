@@ -19,7 +19,30 @@ def register_routes(app, db):
         return {"message": "Item added successfully"}, 201
 
     @cross_origin
-    @app.route('/get_inventory', methods=['GET'])
+    @app.route('/api/add_item_loan', methods=['POST'])
+    def add_item_loan():
+        data = request.get_json()
+        item = Item.query.filter_by(description=data['description']).first()
+        iid = item.iid
+        itemLoan = ItemUse(iid=iid)
+        
+        db.session.add(itemLoan)
+        db.session.commit()
+        return {'message': 'Loan added succesfully'}, 201
+    
+    @cross_origin
+    @app.route('/api/end_item_loan', methods=['POST'])
+    def end_item_loan():
+        data = request.get_json()
+        item = Item.query.filter_by(description=data['description']).first()
+        iid = item.iid
+        loan = ItemUse.query.filter_by(iid=iid, end_date='').first()
+        loan.end_date = date.today()
+        
+        return {'message': 'loan ended succesfully'}, 201
+        
+    @cross_origin
+    @app.route('/api/get_inventory', methods=['GET'])
     def get_inventory():
         mock_inventory = [
             {"description": "Tent", "quantity": 10, "loaned": 2},

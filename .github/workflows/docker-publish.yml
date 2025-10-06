@@ -1,0 +1,57 @@
+name: Build and Publish Docker images
+
+on:
+  # Run only when a tag that looks like a version is pushed (e.g. v1.2.3 or v1)
+  push:
+    tags:
+      - "v*.*"
+      - "v*"
+  # Keep manual dispatch for convenience
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag (e.g. v1.2.3)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push server image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/kazouinventory-server:${{ github.ref_name }}
+
+      - name: Build and push client image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./client
+          file: ./client/Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/kazouinventory-client:${{ github.ref_name }}

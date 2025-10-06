@@ -3,6 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import MetaData
 from flask_cors import CORS
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 convention = {
     "ix": 'ix_%(column_0_label)s',
@@ -18,6 +22,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///./inventory.db'
     app.config['CORS_HEADERS'] = 'Content-Type'
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     db.init_app(app)
     
     from routes import register_routes
