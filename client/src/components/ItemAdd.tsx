@@ -2,9 +2,10 @@ import type { AxiosInstance } from "axios";
 
 interface ItemAddProps {
   api: AxiosInstance;
+  onAdd?: () => void;
 }
 
-function ItemAdd({ api }: ItemAddProps) {
+function ItemAdd({ api, onAdd }: ItemAddProps) {
   const itemAddSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -18,9 +19,20 @@ function ItemAdd({ api }: ItemAddProps) {
       })
       .then((response) => {
         console.log(response.data.message);
+        // Only trigger parent refresh after a successful add
+        if (onAdd) {
+          onAdd();
+          console.log("onAdd called");
+        } else {
+          console.log("onAdd not defined");
+        }
       })
       .catch((error) => {
         console.error("Error adding item:", error);
+      })
+      .finally(() => {
+        // reset form regardless of success/failure
+        e.currentTarget.reset();
       });
   };
   return (

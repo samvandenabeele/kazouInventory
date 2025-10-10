@@ -44,25 +44,39 @@ def register_routes(app, db):
     @cross_origin
     @app.route('/api/get_inventory', methods=['GET'])
     def get_inventory():
-        mock_inventory = [
-            {"description": "Tent", "quantity": 10, "loaned": 2},
-            {"description": "Sleeping Bag", "quantity": 20, "loaned": 5},
-            {"description": "Camping Stove", "quantity": 8, "loaned": 1},
-            {"description": "Lantern", "quantity": 15, "loaned": 3},
-            {"description": "First Aid Kit", "quantity": 12, "loaned": 0},
-            {"description": "Water Bottle", "quantity": 30, "loaned": 10},
-            {"description": "Backpack", "quantity": 18, "loaned": 4},
-            {"description": "Raincoat", "quantity": 25, "loaned": 7},
-            {"description": "Map", "quantity": 14, "loaned": 2},
-            {"description": "Compass", "quantity": 16, "loaned": 1},
-            {"description": "Flashlight", "quantity": 22, "loaned": 6},
-            {"description": "Cooking Pot", "quantity": 9, "loaned": 2},
-            {"description": "Rope", "quantity": 13, "loaned": 3},
-            {"description": "Gloves", "quantity": 17, "loaned": 5},
-            {"description": "Hat", "quantity": 21, "loaned": 8},
-        ]
+        # mock_inventory = [
+        #     {"description": "Tent", "quantity": 10, "loaned": 2},
+        #     {"description": "Sleeping Bag", "quantity": 20, "loaned": 5},
+        #     {"description": "Camping Stove", "quantity": 8, "loaned": 1},
+        #     {"description": "Lantern", "quantity": 15, "loaned": 3},
+        #     {"description": "First Aid Kit", "quantity": 12, "loaned": 0},
+        #     {"description": "Water Bottle", "quantity": 30, "loaned": 10},
+        #     {"description": "Backpack", "quantity": 18, "loaned": 4},
+        #     {"description": "Raincoat", "quantity": 25, "loaned": 7},
+        #     {"description": "Map", "quantity": 14, "loaned": 2},
+        #     {"description": "Compass", "quantity": 16, "loaned": 1},
+        #     {"description": "Flashlight", "quantity": 22, "loaned": 6},
+        #     {"description": "Cooking Pot", "quantity": 9, "loaned": 2},
+        #     {"description": "Rope", "quantity": 13, "loaned": 3},
+        #     {"description": "Gloves", "quantity": 17, "loaned": 5},
+        #     {"description": "Hat", "quantity": 21, "loaned": 8},
+        # ]
 
-        return {"inventory": mock_inventory, "count": len(mock_inventory)}, 200
+        items = Item.query.all()
+        loans = ItemUse.query.filter_by(end_date=None).all()
+
+        inventory = []
+        for item in items:
+            loaned = sum(1 for loan in loans if loan.iid == item.iid)
+            inventory.append({
+                "description": item.description,
+                "quantity": item.quantity,
+                "loaned": loaned
+            })
+
+        inventory.sort(key=lambda x: x["description"].lower())
+
+        return {"inventory": inventory, "count": len(inventory)}, 200
     
     @app.route("/api/add_box", methods=['POST'])
     def add_box():
@@ -75,7 +89,7 @@ def register_routes(app, db):
     @app.route('/api/edit/add_content', methods=['POST'])
     def edit_box():
         data = request.get_json()
-        content = Content(bid=data['bid'], description=data['description'], quantity=data['quantity'])
+        content = Content(bid=data['bid'], description=data['description'].lower(), quantity=data['quantity'])
         
         if data['iid']:
             itemUse = ItemUse(iid=data['iid'])

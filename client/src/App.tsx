@@ -16,10 +16,17 @@ function App() {
     });
   }, []);
 
+  const onItemChange = () => {
+    axios.get("/api/get_inventory").then((response) => {
+      // Extract the inventory array from the response JSON object
+      setLibraries(response.data.inventory);
+    });
+  };
+
   return (
     <>
-      <ItemAdd api={axios} />
-      <ItemLoan api={axios} />
+      <ItemAdd api={axios} onAdd={onItemChange} />
+      <ItemLoan api={axios} onLoan={onItemChange} />
       <ItemTable data={libraries} />
     </>
   );

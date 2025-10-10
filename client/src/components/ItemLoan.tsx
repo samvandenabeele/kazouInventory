@@ -3,9 +3,10 @@ import type { FormEvent } from "react";
 
 interface ItemLoanProps {
   api: AxiosInstance;
+  onLoan?: () => void;
 }
 
-function ItemLoan({ api }: ItemLoanProps) {
+function ItemLoan({ api, onLoan }: ItemLoanProps) {
   const handleLoan = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -22,9 +23,14 @@ function ItemLoan({ api }: ItemLoanProps) {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
 
-    api.post("/api/end_item_loan", { description: data.description });
+    api
+      .post("/api/end_item_loan", { description: data.description })
+      .then(() => {
+        if (onLoan) {
+          onLoan();
+        }
+      });
   };
-
   return (
     <>
       <h1>Item uitlenen</h1>
