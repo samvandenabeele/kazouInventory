@@ -12,10 +12,16 @@ function ItemLoan({ api, onLoan }: ItemLoanProps) {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
 
-    api.post("/api/add_item_loan", {
-      description: data.description,
-      quantity: data.quantity,
-    });
+    api
+      .post("/api/add_item_loan", {
+        description: data.description,
+        quantity: data.quantity,
+      })
+      .then(() => {
+        if (onLoan) {
+          onLoan();
+        }
+      });
   };
 
   const handleEndLoan = (e: FormEvent<HTMLFormElement>) => {
@@ -24,7 +30,10 @@ function ItemLoan({ api, onLoan }: ItemLoanProps) {
     const data = Object.fromEntries(formData.entries());
 
     api
-      .post("/api/end_item_loan", { description: data.description })
+      .post("/api/end_item_loan", {
+        description: data.description,
+        quantity: data.quantity,
+      })
       .then(() => {
         if (onLoan) {
           onLoan();
@@ -42,6 +51,7 @@ function ItemLoan({ api, onLoan }: ItemLoanProps) {
       <h1>lening beëindigen</h1>
       <form id="itemEndLoanForm" onSubmit={handleEndLoan}>
         <input type="text" name="description" />
+        <input type="number" name="quantity" min={1} />
         <button type="submit">lening beëindigen</button>
       </form>
     </>

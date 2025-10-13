@@ -1,9 +1,18 @@
-from flask import request, render_template
+from flask import request, render_template, redirect
 from datetime import date
 from models import Item, Box, Content, ItemUse
 from flask_cors import cross_origin
+from flask import send_from_directory
+import os
 
 def register_routes(app, db):
+    @app.route('/', defaults={'filename': 'index.html'})
+    @app.route('/<path:filename>')
+    def serve_static(filename):
+        static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'www')
+        return send_from_directory(static_folder, filename)
+
+
     @cross_origin
     @app.route('/api/add_item', methods=['POST'])
     def add_item():
@@ -24,7 +33,7 @@ def register_routes(app, db):
         data = request.get_json()
         item = Item.query.filter_by(description=data['description']).first()
         iid = item.iid
-        itemLoan = ItemUse(iid=iid)
+        itemLoan = ItemUse(iid=iid, quantity=int(data['quantity']))
         
         db.session.add(itemLoan)
         db.session.commit()
@@ -36,7 +45,7 @@ def register_routes(app, db):
         data = request.get_json()
         item = Item.query.filter_by(description=data['description']).first()
         iid = item.iid
-        loan = ItemUse.query.filter_by(iid=iid, end_date='').first()
+        loan = ItemUse.query.filter_by(iid=iid, end_date=None).first()
         loan.end_date = date.today()
         
         return {'message': 'loan ended succesfully'}, 201
