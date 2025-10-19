@@ -21,8 +21,9 @@ def register_routes(app, db):
         description = data.get('description')
         quantity = data.get('quantity')
 
-        item = Item(description=description, quantity=quantity)
-        print(item)
+        item = Item()
+        item.description = description.lower()
+        item.quantity = int(quantity)
         db.session.add(item)
         db.session.commit()
         return {"message": "Item added successfully"}, 201
@@ -34,7 +35,7 @@ def register_routes(app, db):
         item = Item.query.filter_by(description=data['description']).first()
         iid = item.iid
         itemLoan = ItemUse(iid=iid, quantity=int(data['quantity']))
-        
+
         db.session.add(itemLoan)
         db.session.commit()
         return {'message': 'Loan added succesfully'}, 201

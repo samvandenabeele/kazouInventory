@@ -18,7 +18,7 @@ class Box(db.Model):
 class Content(db.Model):
     __tablename__ = 'box_content'
     
-    cid = db.Column(db.Text, primary_key=True)
+    cid = db.Column(db.Integer, primary_key=True)
     bid = db.Column(db.Integer, db.ForeignKey('boxes.bid'), nullable=False)
     description = db.Column(db.Text, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
@@ -28,7 +28,7 @@ class Content(db.Model):
 class ItemUse(db.Model):
     __tablename__ = 'item_usage'
     
-    iuid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    iuid = db.Column(db.Integer, primary_key=True)
     iid = db.Column(db.Integer, db.ForeignKey('items.iid'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     start_date = db.Column(db.DateTime, default=date.today())

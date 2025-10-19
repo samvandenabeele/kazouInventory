@@ -6,7 +6,7 @@ import ItemTable from "./components/ItemTable.tsx";
 import ItemLoan from "./components/ItemLoan.tsx";
 
 function App() {
-  axios.defaults.baseURL = "http://localhost:5000";
+  axios.defaults.baseURL = `http://${window.location.hostname}:5000`;
   const [libraries, setLibraries] = React.useState<any[]>([]);
 
   React.useEffect(() => {
