@@ -3,25 +3,18 @@ import type { FormEvent } from "react";
 
 interface ItemLoanProps {
   api: AxiosInstance;
-  onLoan?: () => void;
 }
 
-function ItemLoan({ api, onLoan }: ItemLoanProps) {
+function ItemLoan({ api }: ItemLoanProps) {
   const handleLoan = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
 
-    api
-      .post("/api/add_item_loan", {
-        description: data.description,
-        quantity: data.quantity,
-      })
-      .then(() => {
-        if (onLoan) {
-          onLoan();
-        }
-      });
+    api.post("/api/add_item_loan", {
+      description: data.description,
+      quantity: data.quantity,
+    });
   };
 
   const handleEndLoan = (e: FormEvent<HTMLFormElement>) => {
@@ -29,16 +22,10 @@ function ItemLoan({ api, onLoan }: ItemLoanProps) {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
 
-    api
-      .post("/api/end_item_loan", {
-        description: data.description,
-        quantity: data.quantity,
-      })
-      .then(() => {
-        if (onLoan) {
-          onLoan();
-        }
-      });
+    api.post("/api/end_item_loan", {
+      description: data.description,
+      quantity: data.quantity,
+    });
   };
   return (
     <>

@@ -1,33 +1,25 @@
 import axios from "axios";
-import React from "react";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
-import ItemAdd from "./components/ItemAdd.tsx";
-import ItemTable from "./components/ItemTable.tsx";
-import ItemLoan from "./components/ItemLoan.tsx";
+import PageItemUse from "./pages/pageItemUse.tsx";
+import PageItemTable from "./pages/pageItemTable.tsx";
+import PageHome from "./pages/pageHome.tsx";
+import Layout from "./Layout.tsx";
 
 function App() {
   axios.defaults.baseURL = `http://${window.location.hostname}:5000`;
-  const [libraries, setLibraries] = React.useState<any[]>([]);
-
-  React.useEffect(() => {
-    axios.get("/api/get_inventory").then((response) => {
-      // Extract the inventory array from the response JSON object
-      setLibraries(response.data.inventory);
-    });
-  }, []);
-
-  const onItemChange = () => {
-    axios.get("/api/get_inventory").then((response) => {
-      // Extract the inventory array from the response JSON object
-      setLibraries(response.data.inventory);
-    });
-  };
 
   return (
     <>
-      <ItemAdd api={axios} onAdd={onItemChange} />
-      <ItemLoan api={axios} onLoan={onItemChange} />
-      <ItemTable data={libraries} />
+      <Router>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/itemChange" element={<PageItemUse api={axios} />} />
+            <Route path="/itemTable" element={<PageItemTable api={axios} />} />
+            <Route path="/" element={<PageHome />} />
+          </Route>
+        </Routes>
+      </Router>
     </>
   );
 }
