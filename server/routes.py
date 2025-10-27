@@ -1,18 +1,71 @@
-from flask import request, render_template, redirect
+from flask import request, session
 from datetime import date
-from models import Item, Box, Content, ItemUse
+from models import Item, Box, Content, ItemUse, User
 from flask_cors import cross_origin
 from flask import send_from_directory
+from flask_bcrypt import Bcrypt
+from functools import wraps
 import os
 
 def register_routes(app, db):
+    def login_required(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'user_id' not in session:
+                return {'error': 'Authentication required'}, 401
+            return f(*args, **kwargs)
+        return decorated_function
+    
     @app.route('/', defaults={'filename': 'index.html'})
     @app.route('/<path:filename>')
     def serve_static(filename):
         static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'www')
         return send_from_directory(static_folder, filename)
 
+    @cross_origin
+    @app.route('/login', methods=['POST'])
+    def login():
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+        
+        user = User.query.filter_by(username=username).first()
+        if not user or not Bcrypt.check_password_hash(user.password, password):
+            return {'error': 'Invalid username or password'}, 401
+        
+        session['user_id'] = user.id
+        session.permanent = True
 
+        return {'error': 'Invalid username or password'}, 401
+    
+    @cross_origin
+    @app.route('/signup', methods=['POST'])
+    def signup():
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+
+        if not username or not password:
+            return {'error': 'Username and password required'}, 400
+
+        # Check if username already exists
+        if User.query.filter_by(username=username).first():
+            return {'error': 'Username already exists'}, 400
+
+        hashed_pw = Bcrypt.generate_password_hash(password).decode('utf-8')
+        new_user = User(username=username, password_hash=hashed_pw)
+        db.session.add(new_user)
+        db.session.commit()
+            
+        return {'message': 'User registered successfully'}, 201
+    
+    @cross_origin
+    @app.route('/logout')
+    def logout():
+        session.clear()
+        return {'message': 'Logged out successfully'}, 200
+            
+    @login_required
     @cross_origin
     @app.route('/api/add_item', methods=['POST'])
     def add_item():
@@ -28,6 +81,7 @@ def register_routes(app, db):
         db.session.commit()
         return {"message": "Item added successfully"}, 201
 
+    @login_required
     @cross_origin
     @app.route('/api/add_item_loan', methods=['POST'])
     def add_item_loan():
@@ -40,6 +94,7 @@ def register_routes(app, db):
         db.session.commit()
         return {'message': 'Loan added succesfully'}, 201
     
+    @login_required
     @cross_origin
     @app.route('/api/end_item_loan', methods=['POST'])
     def end_item_loan():
@@ -51,6 +106,7 @@ def register_routes(app, db):
         
         return {'message': 'loan ended succesfully'}, 201
         
+    @login_required
     @cross_origin
     @app.route('/api/get_inventory', methods=['GET'])
     def get_inventory():
@@ -88,6 +144,7 @@ def register_routes(app, db):
 
         return {"inventory": inventory, "count": len(inventory)}, 200
     
+    @login_required
     @app.route("/api/add_box", methods=['POST'])
     def add_box():
         data = request.get_json()
@@ -96,6 +153,7 @@ def register_routes(app, db):
         db.session.commit()
         return {"message": "Box added successfully"}, 201
     
+    @login_required
     @app.route('/api/edit/add_content', methods=['POST'])
     def edit_box():
         data = request.get_json()
@@ -111,6 +169,7 @@ def register_routes(app, db):
         
         return {"message": f"Content {data['description']} added succesfully to box {data['bid']}."}, 201
     
+    @login_required
     @app.route('/api/edit/remove_content', methods=['POST'])
     def remove_content():
         data = request.get_json()
@@ -122,6 +181,7 @@ def register_routes(app, db):
         db.session.commit()
         return {"message": f"Content {content_id} marked as deleted."}, 200
     
+    @login_required
     @app.route('/api/get_box_content', methods=['GET'])
     def get_box_content():
         data = request.get_json()
@@ -130,11 +190,12 @@ def register_routes(app, db):
         contents = Content.query.filter_by(bid=bid, date_deleted=None).all()
         return {"contents": [c.serialize() for c in contents], "quantity": len(contents)}, 200
         
-    
+    @login_required
     @app.route('/api/edit/item', methods=['POST'])
     def edit_item():
         pass
     
+    @login_required
     @app.route('/api/delete_data', methods=['DELETE'])
     def delete_data():
         pass

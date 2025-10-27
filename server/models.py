@@ -1,6 +1,14 @@
 from app import db
 from datetime import date
 
+class User(db.Model):
+    __tablename__ = 'users'
+    
+    uid = db.Column(db.Integer, primary_key=True)
+    username = db.Columnn(db.Text, nullable=False)
+    password = db.Column(db.Text, nullable=False)
+    edit_permission = db.Column(db.Bool, default=False)
+
 class Item(db.Model):
     __tablename__ = 'items'
     
