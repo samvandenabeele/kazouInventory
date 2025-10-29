@@ -7,6 +7,7 @@ class User(db.Model):
     uid = db.Column(db.Integer, primary_key=True)
     username = db.Columnn(db.Text, nullable=False)
     password = db.Column(db.Text, nullable=False)
+    email = db.Column(db.Text, nullable=False, unique=True)
     edit_permission = db.Column(db.Bool, default=False)
 
 class Item(db.Model):

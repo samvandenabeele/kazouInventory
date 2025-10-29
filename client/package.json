@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:server": "tsc -b && vite build --outDir ../server/www --emptyOutDir",
     "lint": "eslint .",
     "preview": "vite preview"
   },

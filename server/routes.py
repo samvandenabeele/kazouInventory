@@ -44,6 +44,7 @@ def register_routes(app, db):
         data = request.get_json()
         username = data.get('username')
         password = data.get('password')
+        email = data.get('email')
 
         if not username or not password:
             return {'error': 'Username and password required'}, 400
@@ -53,7 +54,7 @@ def register_routes(app, db):
             return {'error': 'Username already exists'}, 400
 
         hashed_pw = Bcrypt.generate_password_hash(password).decode('utf-8')
-        new_user = User(username=username, password_hash=hashed_pw)
+        new_user = User(username=username, password_hash=hashed_pw, email=email)
         db.session.add(new_user)
         db.session.commit()
             

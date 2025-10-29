@@ -17,6 +17,7 @@ function PageSignUp({ api }: PageSignUpProps) {
       .post("/signup", {
         username: data.username,
         password: data.password,
+        email: data.email,
       })
       .then(() => redirect("/"))
       .catch((error) => {
@@ -29,6 +30,7 @@ function PageSignUp({ api }: PageSignUpProps) {
       <form id="loginForm" onSubmit={handleLogin}>
         <input name="username" type="text" placeholder="username" />
         <input name="password" type="text" placeholder="password" />
+        <input type="email" name="email" />
         <button type="submit">sign up</button>
       </form>
     </>
