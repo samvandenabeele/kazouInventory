@@ -206,14 +206,15 @@ class TestAuthentication:
 
     def test_logout_clears_session(self, client):
         """Test that logout clears session."""
-        with client:
-            with client.session_transaction() as sess:
-                sess['user_id'] = 1
-                sess['other_data'] = 'test'
-            response = client.get('/logout')
-            with client.session_transaction() as sess:
-                assert 'user_id' not in sess
-                assert 'other_data' not in sess
+        with client.session_transaction() as sess:
+            sess['user_id'] = 1
+            sess['other_data'] = 'test'
+        response = client.get('/logout')
+        with client.session_transaction() as sess:
+            assert 'user_id' not in sess
+            assert 'other_data' not in sess
+        assert response.status_code == 200
+        assert b'Logged out successfully' in response.data
 
     def test_logout_without_session(self, client):
         """Test logout without active session."""
