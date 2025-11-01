@@ -114,14 +114,15 @@ class TestAuthentication:
         with patch('routes.User') as MockUser:
             MockUser.query.filter_by.return_value.first.return_value = mock_user
             with patch('flask_bcrypt.Bcrypt.check_password_hash', return_value=True):
-                with client:
-                    response = client.post('/login', json={
-                        'username': 'testuser',
-                        'password': 'testpass'
-                    })
-                    with client.session_transaction() as sess:
-                        assert sess.get('user_id') == 1
-                        assert sess.permanent is True
+                response = client.post('/login', json={
+                    'username': 'testuser',
+                    'password': 'testpass'
+                })
+                
+                # Check session after the request completes
+                with client.session_transaction() as sess:
+                    assert sess.get('user_id') == 1
+                    assert sess.permanent is True
 
     def test_signup_success(self, client, db):
         """Test successful user signup."""
