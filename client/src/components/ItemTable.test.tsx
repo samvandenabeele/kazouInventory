@@ -105,13 +105,19 @@ describe("ItemTable Component", () => {
     });
 
     it("handles API errors gracefully", async () => {
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       mockApi.get = vi.fn().mockRejectedValue(new Error("API Error")) as any;
 
       render(<ItemTable api={mockApi} />);
 
       await waitFor(() => {
         expect(mockApi.get).toHaveBeenCalled();
+        expect(consoleErrorSpy).toHaveBeenCalled();
       });
+
+      consoleErrorSpy.mockRestore();
     });
 
     it("extracts inventory from response correctly", async () => {

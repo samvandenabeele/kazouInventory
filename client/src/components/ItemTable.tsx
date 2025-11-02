@@ -8,15 +8,27 @@ interface ItemTableProps {
 function ItemTable({ api }: ItemTableProps) {
   const [libraries, setLibraries] = React.useState<any[]>([]);
   const [page, setPage] = React.useState(0);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   const rowsPerPage = 10;
   const totalPages = Math.ceil(libraries.length / rowsPerPage);
 
   React.useEffect(() => {
-    api.get("/api/get_inventory").then((response) => {
-      // Extract the inventory array from the response JSON object
-      setLibraries(response.data.inventory);
-    });
-  }, []);
+    setLoading(true);
+    api
+      .get("/api/get_inventory")
+      .then((response) => {
+        setLibraries(response.data.inventory);
+        setError(null);
+      })
+      .catch((err) => {
+        setError(err.response?.data?.message || "Failed to load inventory");
+        console.error("Error fetching inventory:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [api]);
 
   const handlePrev = () => {
     setPage((prev) => Math.max(prev - 1, 0));
@@ -30,6 +42,14 @@ function ItemTable({ api }: ItemTableProps) {
     page * rowsPerPage,
     (page + 1) * rowsPerPage
   );
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div style={{ color: "red" }}>Error: {error}</div>;
+  }
 
   return (
     <div>

@@ -1,11 +1,13 @@
-name: Test Client
+name: Client Tests
 
 on:
   push:
+    branches: [ main, develop ]
     paths:
       - 'client/**'
       - '.github/workflows/test-client.yml'
   pull_request:
+    branches: [ main, develop ]
     paths:
       - 'client/**'
 
@@ -13,21 +15,39 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
 
-      - name: Set up Node.js
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: 'client/package-lock.json'
+          cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
-        working-directory: client
+        working-directory: ./client
         run: npm ci
 
+      - name: Lint code
+        working-directory: ./client
+        run: npm run lint
+
       - name: Run tests
-        working-directory: client
+        working-directory: ./client
         run: npm run test:run
+
+      - name: Generate coverage report
+        working-directory: ./client
+        run: npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./client/coverage/coverage-final.json
+          flags: frontend
+          name: client-coverage
