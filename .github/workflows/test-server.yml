@@ -38,11 +38,3 @@ jobs:
       run: |
         cd server
         pytest server_test.py -v --cov=. --cov-report=xml
-    
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        files: ./server/coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false

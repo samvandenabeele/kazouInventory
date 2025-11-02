@@ -7,7 +7,8 @@ interface ItemAddProps {
 function ItemAdd({ api }: ItemAddProps) {
   const itemAddSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
     console.log(data);
 
@@ -20,16 +21,26 @@ function ItemAdd({ api }: ItemAddProps) {
         console.error("Error adding item:", error);
       })
       .finally(() => {
-        // reset form regardless of success/failure
-        e.currentTarget.reset();
+        form.reset();
       });
   };
   return (
     <>
       <h1>Item(s) toevoegen</h1>
       <form id="addItemForm" onSubmit={itemAddSubmit}>
-        <input type="text" name="description" placeholder="blauwe stylo's" />
-        <input type="number" name="quantity" placeholder="120" min="1" />
+        <input
+          type="text"
+          name="description"
+          placeholder="blauwe stylo's"
+          required
+        />
+        <input
+          type="number"
+          name="quantity"
+          placeholder="120"
+          min="1"
+          required
+        />
         <button type="submit">Item(s) toevoegen</button>
       </form>
     </>

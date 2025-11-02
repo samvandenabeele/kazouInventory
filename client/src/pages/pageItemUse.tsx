@@ -1,12 +1,12 @@
-import type { AxiosInstance } from "axios";
 import ItemAdd from "../components/ItemAdd";
 import ItemLoan from "../components/ItemLoan";
+import type { AxiosInstance } from "axios";
 
 interface PageItemAddProps {
   api: AxiosInstance;
 }
 
-function PageItemAdd({ api }: PageItemAddProps) {
+export default function PageItemUse({ api }: PageItemAddProps) {
   return (
     <>
       <ItemAdd api={api} />
@@ -14,5 +14,3 @@ function PageItemAdd({ api }: PageItemAddProps) {
     </>
   );
 }
-
-export default PageItemAdd;
