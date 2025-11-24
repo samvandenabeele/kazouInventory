@@ -1,4 +1,13 @@
-instance
-migrations
-.venv
-__pychache__
+instance/
+migrations/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+.vscode/

@@ -1,11 +1,7 @@
-import type { AxiosInstance } from "axios";
 import ItemTable from "../components/ItemTable";
+import api from "../components/api";
 
-interface PageItemTableProps {
-  api: AxiosInstance;
-}
-
-function PageItemTable({ api }: PageItemTableProps) {
+function PageItemTable() {
   return <ItemTable api={api} />;
 }
 

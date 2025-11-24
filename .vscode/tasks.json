@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Frontend",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/client"
+      }
+    },
+    {
+      "label": "Start Backend",
+      "type": "shell",
+      "command": ".venv/Scripts/activate; python run.py",
+      "options": {
+        "cwd": "${workspaceFolder}/server"
+      }
+    },
+    {
+      "label": "Start All",
+      "dependsOn": [
+        "Start Frontend",
+        "Start Backend"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "compile backend to server",
+      "type": "shell",
+      "command": "npm run build:server",
+      "options": {
+        "cwd": "${workspaceFolder}/client"
+      }
+    },
+    {
+      "label": "start docker-compose",
+      "type": "shell",
+      "command": "docker-compose up --build",
+    },
+    {
+      "label": "compile and docker-compose",
+      "dependsOn": [
+        "compile backend to server",
+        "start docker-compose"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
+}

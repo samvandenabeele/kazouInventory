@@ -1,43 +1,77 @@
-import axios from "axios";
 import {
   HashRouter as Router,
   Routes,
   Route,
-  redirect,
+  Navigate,
 } from "react-router-dom";
 
 import PageSignUp from "./pages/pageSignUp.tsx";
 import PageLogin from "./pages/pageLogin.tsx";
-import PageItemUse from "./pages/pageItemUse.tsx";
+import PageItem from "./pages/pageItem.tsx";
 import PageItemTable from "./pages/pageItemTable.tsx";
 import PageHome from "./pages/pageHome.tsx";
+import PageItemAdd from "./pages/pageItemAdd.tsx";
 import Layout from "./Layout.tsx";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+
+function PageItemWrapper() {
+  const { itemDescription } = useParams<{ itemDescription: string }>();
+  if (!itemDescription) {
+    return <Navigate to="/" />;
+  }
+  return <PageItem item={decodeURIComponent(itemDescription)} />;
+}
 
 function App() {
-  const api = axios.create({
-    baseURL: "http://${window.location.hostname}:5000",
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    // Initialize from localStorage
+    return localStorage.getItem("isLoggedIn") === "true";
   });
-  // axios.defaults.baseURL = `http://${window.location.hostname}:5000`;
 
-  api.interceptors.response.use(
-    (res) => res,
-    (err) => {
-      if (err.response?.status === 401) {
-        redirect("/login");
-      }
-      return Promise.reject(err);
-    }
-  );
+  // Update localStorage whenever isLoggedIn changes
+  useEffect(() => {
+    localStorage.setItem("isLoggedIn", String(isLoggedIn));
+  }, [isLoggedIn]);
+
+  // Listen for login status changes from other components
+  useEffect(() => {
+    const handleLoginStatusChange = () => {
+      setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
+    };
+
+    window.addEventListener("loginStatusChanged", handleLoginStatusChange);
+    return () => {
+      window.removeEventListener("loginStatusChanged", handleLoginStatusChange);
+    };
+  }, []);
 
   return (
     <>
       <Router>
         <Routes>
           <Route element={<Layout />}>
-            <Route path="/login" element={<PageLogin api={api} />} />
-            <Route path="/signUp" element={<PageSignUp api={api} />} />
-            <Route path="/itemChange" element={<PageItemUse api={api} />} />
-            <Route path="/itemTable" element={<PageItemTable api={api} />} />
+            <Route path="/item_add" element={<PageItemAdd />} />
+            <Route
+              path="/login"
+              element={<PageLogin setIsLoggedIn={setIsLoggedIn} />}
+            />
+            <Route
+              path="/signUp"
+              element={<PageSignUp setIsLoggedIn={setIsLoggedIn} />}
+            />
+            <Route
+              path="/item/:itemDescription"
+              element={
+                isLoggedIn ? <PageItemWrapper /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/itemTable"
+              element={
+                isLoggedIn ? <PageItemTable /> : <Navigate to="/login" />
+              }
+            />
             <Route path="/" element={<PageHome />} />
           </Route>
         </Routes>

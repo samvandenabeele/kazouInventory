@@ -25,4 +25,4 @@ ENTRYPOINT [ "sh", "./entrypoint.sh" ]
 
 # Use gunicorn to serve the Flask app factory
 # Gunicorn will call create_app via module:callable pattern
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:create_app()"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info", "app:create_app()"]

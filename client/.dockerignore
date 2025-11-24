@@ -1,2 +1,15 @@
-mock-server
-node_modules
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+venv/
+*.log
+.pytest_cache
+.coverage
+htmlcov/
+migrations/
+instance/
+.vscode/
+.coverage

@@ -1,6 +1,6 @@
-from flask import request, session
+from flask import request, session, jsonify
 from datetime import date
-from models import Item, Box, Content, ItemUse, User
+from models import Item, Transaction, User
 from flask_cors import cross_origin
 from flask import send_from_directory
 from functools import wraps
@@ -12,6 +12,7 @@ def register_routes(app, db, bcrypt):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if 'user_id' not in session:
+                app.logger.info(f"Unauthorized login request - request from {request.remote_addr}")
                 return {'error': 'Authentication required'}, 401
             return f(*args, **kwargs)
         return decorated_function
@@ -27,211 +28,176 @@ def register_routes(app, db, bcrypt):
         static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'www')
         return send_from_directory(static_folder, filename)
 
+    @app.route('/login', methods=['POST', 'OPTIONS'])
     @cross_origin(supports_credentials=True)
-    @app.route('/login', methods=['POST'])
     def login():
+        if request.method == 'OPTIONS':
+            return '', 200
+        
+        app.logger.info(f"Login attempt - Request from {request.remote_addr}")
+        app.logger.info(f"Request headers: {dict(request.headers)}")
+        
         data = request.get_json()
+        app.logger.info(f"Login request data: {data}")
+        
         username = data.get('username')
         password = data.get('password')
         
+        if not username or not password:
+            app.logger.warning("Login failed: Missing username or password")
+            return {'error': 'Username and password required'}, 400
+        
         user = User.query.filter_by(username=username).first()
-        if not user or not bcrypt.check_password_hash(user.password, password):
+        if not user:
+            app.logger.warning(f"Login failed: User '{username}' not found")
+            return {'error': 'Invalid username or password'}, 401
+            
+        if not bcrypt.check_password_hash(user.password, password):
+            app.logger.warning(f"Login failed: Invalid password for user '{username}'")
             return {'error': 'Invalid username or password'}, 401
         
         session['user_id'] = user.uid
         session.permanent = True
+        app.logger.info(f"Login successful for user '{username}'")
 
         return {'message': 'Login successful'}, 200
     
+    @app.route('/signup', methods=['POST', 'OPTIONS'])
     @cross_origin(supports_credentials=True)
-    @app.route('/signup', methods=['POST'])
     def signup():
-        data = request.get_json()
-        username = data.get('username')
-        password = data.get('password')
-        email = data.get('email')
-
-        if not username or not password:
-            return {'error': 'Username and password required'}, 400
-
-        # Check if username already exists
-        if User.query.filter_by(username=username).first():
-            return {'error': 'Username already exists'}, 400
-
-        hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
-        new_user = User(username=username, password=hashed_pw, email=email)
-        db.session.add(new_user)
-        db.session.commit()
+        if request.method == 'OPTIONS':
+            return '', 200
             
-        return {'message': 'User registered successfully'}, 201
+        try:
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+            email = data.get('email')
+
+            if not username or not password:
+                return {'error': 'Username and password required'}, 400
+
+            # Check if username already exists
+            if User.query.filter_by(username=username).first():
+                return {'error': 'Username already exists'}, 400
+
+            hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
+            new_user = User(username=username, password=hashed_pw, email=email)
+            db.session.add(new_user)
+            db.session.commit()
+
+            session['user_id'] = new_user.uid
+            session.permanent = True
+                
+            return {'message': 'User registered successfully'}, 201
+        except Exception as e:
+            app.logger.error(f"Error during signup: {str(e)}")
+            return {'error': 'Internal server error'}, 500
     
+    @app.route('/logout', methods=['POST'])
     @cross_origin(supports_credentials=True)
-    @app.route('/logout')
     def logout():
         session.clear()
         return {'message': 'Logged out successfully'}, 200
-            
-    @cross_origin(supports_credentials=True)
+
     @app.route('/api/add_item', methods=['POST'])
+    @cross_origin(supports_credentials=True)
     @login_required
     def add_item():
         data = request.get_json()
 
-        description = data.get('description')
-        quantity = data.get('quantity')
+        description = data['description']
 
-        if not description or not quantity:
-            return {"error": "Description and quantity are required"}, 400
+        if not description:
+            return {'error': 'no description provided'}, 400
+        elif Item.query.filter_by(description=description).first():
+            return {'error': 'Item already exists'}, 400
 
-        item = Item()
-        item.description = description.lower()
-        item.quantity = int(quantity)
+        item = Item(description=description)
         db.session.add(item)
         db.session.commit()
-        return {"message": "Item added successfully"}, 201
 
+        loggermessage = f'Added new item - {description}'
+
+        app.logger.info(loggermessage)
+
+        return {'message': 'Item added succesfully'}, 200
+            
+    @app.route('/api/transaction/<transaction_type>', methods=['POST'])
     @cross_origin(supports_credentials=True)
-    @app.route('/api/add_item_loan', methods=['POST'])
     @login_required
-    def add_item_loan():
-        data = request.get_json()
-        item = Item.query.filter_by(description=data['description']).first()
-        
-        if not item:
-            return {'error': 'Item not found'}, 500
-        iid = item.iid
+    def add_transaction(transaction_type):
+        if not transaction_type in ['borrow', 'return', 'purchase', 'dispose']:
+            return {'error', 'Invalid transaction type. Valid types are: borrow, return, purchase, dispose'}, 400
 
-        itemLoan = ItemUse(iid=iid, quantity=int(data['quantity']))
-
-        db.session.add(itemLoan)
-        db.session.commit()
-        return {'message': 'Loan added succesfully'}, 201
-    
-    @cross_origin(supports_credentials=True)
-    @app.route('/api/end_item_loan', methods=['POST'])
-    @login_required
-    def end_item_loan():
         data = request.get_json()
-        item = Item.query.filter_by(description=data['description']).first()
+
+        item_description = data.get('item_description')
+        quantity = data.get('quantity')
+
+        if not item_description or not quantity:
+            return {"error": "Description and quantity are required"}, 400
+
+        item = Item.query.filter_by(description=item_description.lower()).first()
 
         if not item:
-            return {'error': 'Item not found'}, 500
-        
-        iid = item.iid
+            return {"error", "No such item found"}, 400
 
-        loan = ItemUse.query.filter_by(iid=iid, end_date=None).first()
-
-        if not loan:
-            return {'error': 'Active loan not found for this item'}, 500
-        
-        loan.end_date = date.today()
+        transaction = Transaction(iid=item.iid, uid=session['user_id'], transaction_type=transaction_type, quantity=quantity)
+        db.session.add(transaction)
         db.session.commit()
-        
-        return {'message': 'loan ended succesfully'}, 201
-        
-    @cross_origin(supports_credentials=True)
+
+        return {'message': 'transaction added succesfully'}, 200
+
     @app.route('/api/get_inventory', methods=['GET'])
+    @cross_origin(supports_credentials=True)
     @login_required
     def get_inventory():
-        # mock_inventory = [
-        #     {"description": "Tent", "quantity": 10, "loaned": 2},
-        #     {"description": "Sleeping Bag", "quantity": 20, "loaned": 5},
-        #     {"description": "Camping Stove", "quantity": 8, "loaned": 1},
-        #     {"description": "Lantern", "quantity": 15, "loaned": 3},
-        #     {"description": "First Aid Kit", "quantity": 12, "loaned": 0},
-        #     {"description": "Water Bottle", "quantity": 30, "loaned": 10},
-        #     {"description": "Backpack", "quantity": 18, "loaned": 4},
-        #     {"description": "Raincoat", "quantity": 25, "loaned": 7},
-        #     {"description": "Map", "quantity": 14, "loaned": 2},
-        #     {"description": "Compass", "quantity": 16, "loaned": 1},
-        #     {"description": "Flashlight", "quantity": 22, "loaned": 6},
-        #     {"description": "Cooking Pot", "quantity": 9, "loaned": 2},
-        #     {"description": "Rope", "quantity": 13, "loaned": 3},
-        #     {"description": "Gloves", "quantity": 17, "loaned": 5},
-        #     {"description": "Hat", "quantity": 21, "loaned": 8},
-        # ]
-
         items = Item.query.all()
-        loans = ItemUse.query.filter_by(end_date=None).all()
 
         inventory = []
         for item in items:
-            loaned = sum(1 for loan in loans if loan.iid == item.iid)
+            loans = Transaction.query.filter_by(transaction_type='borrow', iid=item.iid).all()
+            returns = Transaction.query.filter_by(transaction_type='return', iid=item.iid).all()
+            purchases = Transaction.query.filter_by(transaction_type='purchase', iid=item.iid).all()
+            disposes = Transaction.query.filter_by(transaction_type='dispose', iid=item.iid).all()
+
+            loaned = sum(loan.quantity for loan in loans)
+            returned = sum(Return.quantity for Return in returns)
+            purchased = sum(purchase.quantity for purchase in purchases)
+            disposed = sum(disposed.quantity for disposed in disposes)
+
+            quantity = purchased - disposed
+            loaned = loaned - returned
+            
             inventory.append({
                 "description": item.description,
-                "quantity": item.quantity,
+                "quantity": quantity,
                 "loaned": loaned
             })
 
         inventory.sort(key=lambda x: x["description"].lower())
 
         return {"inventory": inventory, "count": len(inventory)}, 200
-    
-    @cross_origin(supports_credentials=True)
-    @app.route("/api/add_box", methods=['POST'])
-    @login_required
-    def add_box():
-        data = request.get_json()
 
-        if not data.get('description') or not data.get('barcode'):
-            return {"error": "Description and barcode are required"}, 400
+    @app.route('/api/item/<item_description>', methods=['GET'])
+    @cross_origin(supports_credentials=True)
+    @login_required
+    def get_item(item_description):
+        item = Item.query.filter_by(description=item_description).first()
 
-        box = Box(description=data['description'], barcode=data['barcode'])
-        db.session.add(box)
-        db.session.commit()
-        return {"message": "Box added successfully"}, 201
-    
-    @cross_origin(supports_credentials=True)
-    @app.route('/api/edit/add_content', methods=['POST'])
-    @login_required
-    def edit_box():
-        data = request.get_json()
-        content = Content(bid=data['bid'], description=data['description'].lower(), quantity=data['quantity'])
-        
-        db.session.add(content)
-        
-        if data.get('iid'):
-            itemUse = ItemUse(iid=data['iid'], quantity=data['quantity'])
-            db.session.add(itemUse)
-        
-        db.session.commit()
-        
-        return {"message": f"Content {data['description']} added succesfully to box {data['bid']}."}, 201
-    
-    @cross_origin(supports_credentials=True)
-    @app.route('/api/edit/remove_content', methods=['POST'])
-    @login_required
-    def remove_content():
-        data = request.get_json()
-        content_id = data.get('id')
+        if not item:
+            return {'error': 'No such item'}, 400
 
-        content = Content.query.get(content_id)
-        
-        if not content:
-            return {"error": "Content not found"}, 404
+        transactions = Transaction.query.filter_by(iid=item.iid).all()
 
-        content.date_deleted = date.today()
-        db.session.commit()
-        return {"message": f"Content {content_id} marked as deleted."}, 200
-    
-    @cross_origin(supports_credentials=True)
-    @app.route('/api/get_box_content', methods=['GET'])
-    @login_required
-    def get_box_content():
-        data = request.get_json()
-        bid = data['bid']
-        
-        contents = Content.query.filter_by(bid=bid, date_deleted=None).all()
-        return {"contents": [c.serialize() for c in contents], "quantity": len(contents)}, 200
-        
-    @cross_origin(supports_credentials=True)
-    @app.route('/api/edit/item', methods=['POST'])
-    @login_required
-    def edit_item():
-        return {'message': 'Not implemented'}, 501
-    
-    @cross_origin(supports_credentials=True)
-    @app.route('/api/delete_data', methods=['DELETE'])
-    @login_required
-    def delete_data():
-        return {'message': 'Not implemented'}, 501
+        transaction_list = []
+        for transaction in transactions:
+            transaction_list.append({
+                'id': transaction.tid,
+                'transaction_type': transaction.transaction_type,
+                'quantity': transaction.quantity,
+                'date': transaction.date,
+            })
+
+        return {'transaction_list': transaction_list}, 200

@@ -8,8 +8,6 @@ services:
     environment:
       - FLASK_ENV=production
       - SECRET_KEY=cp7JhZO-xG69nHnRHYxU5LrUSoMcNwXFhz2kO6IWwCs
-    volumes:
-      - ./server/instance:/app/instance
     ports:
       - "5000:5000"
 

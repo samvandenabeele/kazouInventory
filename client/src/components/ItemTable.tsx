@@ -1,5 +1,6 @@
 import React from "react";
 import type { AxiosInstance } from "axios";
+import { Link } from "react-router-dom";
 
 interface ItemTableProps {
   api: AxiosInstance;
@@ -64,7 +65,11 @@ function ItemTable({ api }: ItemTableProps) {
         <tbody>
           {paginatedData.map((item, idx) => (
             <tr key={idx}>
-              <td>{item.description}</td>
+              <td>
+                <Link to={`/item/${encodeURIComponent(item.description)}`}>
+                  {item.description}
+                </Link>
+              </td>
               <td>{item.quantity}</td>
               <td>{item.loaned}</td>
             </tr>
