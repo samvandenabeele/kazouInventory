@@ -10,7 +10,7 @@ function PageHome() {
             <Link to="/itemTable">Bekijk inventaris</Link>
           </li>
           <li>
-            <Link to="/itemChange">Leen materiaal</Link>
+            <Link to="/item_add">Materiaal toevoegen</Link>
           </li>
         </ul>
       </nav>

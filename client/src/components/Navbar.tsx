@@ -43,7 +43,7 @@ function Navbar() {
             <button>Bekijk inventaris</button>
           </Link>
           <Link to="/item_add">
-            <button>Leen materiaal</button>
+            <button>Materiaal toevoegen</button>
           </Link>
           <button onClick={handleLogout}>Uitloggen</button>
         </>
