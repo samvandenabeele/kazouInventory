@@ -10,6 +10,6 @@ services:
       - SECRET_KEY=cp7JhZO-xG69nHnRHYxU5LrUSoMcNwXFhz2kO6IWwCs
     ports:
       - "5000:5000"
-
-volumes:
-  db_data: {}
+    volumes:
+      - database:/app/instances
+      - migrations:/app/migrations
