@@ -40,6 +40,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
 
+      - name: Determine version tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build and push server image
         uses: docker/build-push-action@v4
         with:
@@ -48,4 +57,4 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: |
-            ghcr.io/${{ github.repository_owner }}/kazouinventory-server:${{ github.ref_name }}
+            ghcr.io/${{ github.repository_owner }}/kazouinventory-server:${{ steps.version.outputs.tag }}
