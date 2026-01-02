@@ -356,3 +356,4 @@ __marimo__/
 .streamlit/secrets.toml
 
 server/migrations/
+server/www/
