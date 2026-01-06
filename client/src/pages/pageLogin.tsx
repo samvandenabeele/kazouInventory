@@ -1,12 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import api from "../components/api";
 import { useState } from "react";
+import { useAuth } from "../AuthContext";
 
-interface pageLoginProps {
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-}
+function pageLogin() {
+  const { login } = useAuth();
 
-function pageLogin({ setIsLoggedIn }: pageLoginProps) {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -38,9 +37,11 @@ function pageLogin({ setIsLoggedIn }: pageLoginProps) {
       .post("/login", payload)
       .then((response) => {
         console.log("Login successful:", response.data);
-        localStorage.setItem("isLoggedIn", "true");
-        setIsLoggedIn(true);
-        window.dispatchEvent(new Event("loginStatusChanged"));
+        login({
+          id: response.data.id,
+          name: response.data.name,
+          email: response.data.email,
+        });
         navigate("/");
       })
       .catch((error) => {
@@ -78,28 +79,42 @@ function pageLogin({ setIsLoggedIn }: pageLoginProps) {
 
   return (
     <>
-      <form id="loginForm" onSubmit={handleLogin}>
+      <form
+        id="loginForm"
+        onSubmit={handleLogin}
+        className="py-4 flex flex-col items-center min-h-screen space-y-4"
+      >
         {errorMessage && (
-          <div
-            style={{
-              color: "red",
-              marginBottom: "10px",
-              padding: "10px",
-              border: "1px solid red",
-              borderRadius: "4px",
-            }}
-          >
+          <div className="border-2 border-red-600 rounded-md px-2 py-2">
             {errorMessage}
           </div>
         )}
-        <input name="username" type="text" placeholder="username" required />
-        <input
-          name="password"
-          type="password"
-          placeholder="password"
-          required
-        />
-        <button type="submit">Log in</button>
+        <div className="space-y-2">
+          <div>gebruikersnaam</div>
+          <input
+            name="username"
+            type="text"
+            placeholder="username"
+            className="px-2 py-2 rounded-md border-2 border-gray-800"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <div>wachtwoord</div>
+          <input
+            name="password"
+            type="password"
+            placeholder="password"
+            className="px-2 py-2 rounded-md border-2 border-gray-800"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          className="px-4 py-2 rounded-md text-sm font-medium text-gray-800 bg-yellow-300 hover:bg-blue-400 hover:text-white hover:border hover:underline transition-colors"
+        >
+          Log in
+        </button>
       </form>
     </>
   );

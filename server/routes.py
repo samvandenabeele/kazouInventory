@@ -60,7 +60,7 @@ def register_routes(app, db, bcrypt):
         session.permanent = True
         app.logger.info(f"Login successful for user '{username}'")
 
-        return {'message': 'Login successful'}, 200
+        return {'message': 'Login successful', 'id': user.uid, 'username': user.username, 'email': user.email}, 200
     
     @app.route('/signup', methods=['POST', 'OPTIONS'])
     @cross_origin(supports_credentials=True)
@@ -89,7 +89,7 @@ def register_routes(app, db, bcrypt):
             session['user_id'] = new_user.uid
             session.permanent = True
                 
-            return {'message': 'User registered successfully'}, 201
+            return {'message': 'User registered successfully', 'id': new_user.uid, 'name': new_user.username, 'email': new_user.email}, 201
         except Exception as e:
             app.logger.error(f"Error during signup: {str(e)}")
             return {'error': 'Internal server error'}, 500
@@ -168,8 +168,6 @@ def register_routes(app, db, bcrypt):
             disposed = sum(disposed.quantity for disposed in disposes)
 
             quantity = purchased - disposed
-            loaned = loaned - returned
-            
             inventory.append({
                 "description": item.description,
                 "quantity": quantity,

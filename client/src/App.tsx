@@ -12,8 +12,8 @@ import PageItemTable from "./pages/pageItemTable.tsx";
 import PageHome from "./pages/pageHome.tsx";
 import PageItemAdd from "./pages/pageItemAdd.tsx";
 import Layout from "./Layout.tsx";
-import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
 function PageItemWrapper() {
   const { itemDescription } = useParams<{ itemDescription: string }>();
@@ -24,27 +24,7 @@ function PageItemWrapper() {
 }
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    // Initialize from localStorage
-    return localStorage.getItem("isLoggedIn") === "true";
-  });
-
-  // Update localStorage whenever isLoggedIn changes
-  useEffect(() => {
-    localStorage.setItem("isLoggedIn", String(isLoggedIn));
-  }, [isLoggedIn]);
-
-  // Listen for login status changes from other components
-  useEffect(() => {
-    const handleLoginStatusChange = () => {
-      setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
-    };
-
-    window.addEventListener("loginStatusChanged", handleLoginStatusChange);
-    return () => {
-      window.removeEventListener("loginStatusChanged", handleLoginStatusChange);
-    };
-  }, []);
+  const { user } = useAuth();
 
   return (
     <>
@@ -52,25 +32,15 @@ function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/item_add" element={<PageItemAdd />} />
-            <Route
-              path="/login"
-              element={<PageLogin setIsLoggedIn={setIsLoggedIn} />}
-            />
-            <Route
-              path="/signUp"
-              element={<PageSignUp setIsLoggedIn={setIsLoggedIn} />}
-            />
+            <Route path="/login" element={<PageLogin />} />
+            <Route path="/signUp" element={<PageSignUp />} />
             <Route
               path="/item/:itemDescription"
-              element={
-                isLoggedIn ? <PageItemWrapper /> : <Navigate to="/login" />
-              }
+              element={user ? <PageItemWrapper /> : <Navigate to="/login" />}
             />
             <Route
               path="/itemTable"
-              element={
-                isLoggedIn ? <PageItemTable /> : <Navigate to="/login" />
-              }
+              element={user ? <PageItemTable /> : <Navigate to="/login" />}
             />
             <Route path="/" element={<PageHome />} />
           </Route>
