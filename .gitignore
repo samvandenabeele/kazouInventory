@@ -357,3 +357,4 @@ __marimo__/
 
 server/migrations/
 server/www/
+client/COLORS.md
