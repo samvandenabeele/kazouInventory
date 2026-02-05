@@ -48,37 +48,35 @@ function item_add() {
 
   return (
     <>
-      <form onSubmit={handleItemAdd}>
+      <form
+        onSubmit={handleItemAdd}
+        className="py-4 flex flex-col items-center min-h-screen space-y-4"
+      >
         {errorMessage && (
-          <div
-            style={{
-              color: "red",
-              marginBottom: "10px",
-              padding: "10px",
-              border: "1px solid red",
-              borderRadius: "4px",
-            }}
-          >
+          <div className="border-2 border-red-600 rounded-md px-2 py-2">
             {errorMessage}
           </div>
         )}
         {succesMessage && (
-          <div
-            style={{
-              color: "green",
-              marginBottom: "10px",
-              padding: "10px",
-              border: "1px solid green",
-              borderRadius: "4px",
-            }}
-          >
+          <div className="border-2 border-green-600 rounded-md px-2 py-2">
             {succesMessage}
           </div>
         )}
-        <h1>item toevoegen aan inventaris</h1>
+        <h1 className="py-4 text-4xl font-bold text-gray-900">
+          item toevoegen aan inventaris
+        </h1>
         <div>naam item</div>
-        <input type="text" name="itemName" />
-        <button type="submit">item toevoegen</button>
+        <input
+          type="text"
+          name="itemName"
+          className="px-2 py-2 rounded-md border-2 border-gray-800"
+        />
+        <button
+          type="submit"
+          className="px-4 py-2 rounded-md text-sm font-medium text-gray-800 bg-yellow-300 hover:bg-blue-400 hover:text-white hover:border hover:underline transition-colors"
+        >
+          item toevoegen
+        </button>
       </form>
     </>
   );

@@ -53,37 +53,60 @@ function ItemTable({ api }: ItemTableProps) {
   }
 
   return (
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <th>Description</th>
-            <th>Total Amount</th>
-            <th>Amount Loaned</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedData.map((item, idx) => (
-            <tr key={idx}>
-              <td>
-                <Link to={`/item/${encodeURIComponent(item.description)}`}>
-                  {item.description}
-                </Link>
-              </td>
-              <td>{item.quantity}</td>
-              <td>{item.loaned}</td>
+    <div className="flex flex-col items-center w-full p-4">
+      <div className="w-full overflow-auto rounded-lg shadow border-2 border-gray-300">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b-2 border-gray-200">
+            <tr>
+              <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                Description
+              </th>
+              <th className="w-20 p-3 text-sm font-semibold tracking-wide text-left">
+                Total
+              </th>
+              <th className=" w-20 p-3 text-sm font-semibold tracking-wide text-left">
+                Available
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <div style={{ marginTop: "10px" }}>
-        <button onClick={handlePrev} disabled={page === 0}>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {paginatedData.map((item, idx) => (
+              <tr
+                key={idx}
+                className="bg-white odd:bg-gray-50 whitespace-nowrap"
+              >
+                <td className="p-3 text-sm text-gray-700">
+                  <Link to={`/item/${encodeURIComponent(item.description)}`}>
+                    {item.description}
+                  </Link>
+                </td>
+                <td className="p-3 text-sm text-gray-700 whitespace-nowrap">
+                  {item.quantity}
+                </td>
+                <td className="p-3 text-sm text-gray-700 whitespace-nowrap">
+                  {item.available}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="m-10 flex">
+        <button
+          onClick={handlePrev}
+          disabled={page === 0}
+          className="w-25 px-4 py-2 rounded-l-md text-sm font-medium text-gray-800 bg-yellow-300 hover:bg-blue-400 hover:text-white hover:border hover:underline transition-colors border-r-2 border-gray-400"
+        >
           Previous
         </button>
-        <span style={{ margin: "0 10px" }}>
+        <span className="px-4 py-2 text-sm font-medium text-gray-800 bg-yellow-300">
           Page {page + 1} of {totalPages}
         </span>
-        <button onClick={handleNext} disabled={page === totalPages - 1}>
+        <button
+          onClick={handleNext}
+          disabled={page === totalPages - 1}
+          className="w-25 px-4 py-2 rounded-r-md text-sm font-medium text-gray-800 bg-yellow-300 hover:bg-blue-400 hover:text-white hover:border hover:underline transition-colors border-l-2 border-gray-400"
+        >
           Next
         </button>
       </div>
