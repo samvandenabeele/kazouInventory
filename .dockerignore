@@ -1,0 +1,13 @@
+server/instance/
+server/migrations/
+server/.venv/
+server/__pycache__/
+server/*.pyc
+server/*.pyo
+server/*.pyd
+server/.Python
+server/*.log
+server/.pytest_cache/
+server/.coverage
+server/htmlcov/
+server/.vscode/

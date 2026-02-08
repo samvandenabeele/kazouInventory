@@ -190,11 +190,8 @@ export const handlers = [
     });
   }),
 
-  http.post('/api/transaction/borrow', async ({request}) => {
-    const body = await request.json() as {
-      description: string;
-      quantity: number;
-    }
+  http.post('/api/transaction/borrow', async ({ request }) => {
+    await request.json();
 
     return HttpResponse.json(
       { message: 'Transaction added succesfully' }

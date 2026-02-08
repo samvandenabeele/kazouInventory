@@ -1,3 +1,12 @@
+# Build stage for client
+FROM node:20-alpine AS client-builder
+WORKDIR /client
+COPY client/package*.json ./
+RUN npm ci
+COPY client/ .
+RUN npm run build:server
+
+# Python stage
 FROM python:3.11-slim
 WORKDIR /app
 
@@ -10,16 +19,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --no-cache-dir --upgrade pip
 
 # Copy requirements and install
-COPY requirements.txt .
+COPY server/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app
-COPY . .
+# Copy server app
+COPY server/ .
+
+# Copy built client from builder stage
+COPY --from=client-builder /client/dist .server/www
 
 # Expose port
 EXPOSE 5000
 
+COPY entrypoint.sh .
 RUN chmod +x ./entrypoint.sh
+
 
 ENTRYPOINT [ "sh", "./entrypoint.sh" ]
 

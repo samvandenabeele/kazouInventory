@@ -1,7 +1,6 @@
 services:
   server:
     build:
-      context: ./server
       dockerfile: Dockerfile
     image: kazouinventory_server:local
     container_name: kazouinventory_server
@@ -13,3 +12,7 @@ services:
     volumes:
       - database:/app/instances
       - migrations:/app/migrations
+
+volumes:
+  database:
+  migrations:
